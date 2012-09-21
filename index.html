@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test video</title>
+  </head>
+  <body>
+    <div class="videoWrapper" style="position:relative; width: 800px;">
+      <video id="videoTest" style="width: 100%;height: 100%;">
+        <source src="http://inclothing.trying.ru/video/dima.mp4"></source>
+        <source src="http://inclothing.trying.ru/video/dima.webm"></source>
+      </video>
+      <span class="btn-play is-pause" style="position: absolute; top: 0; left: 20px; color: #FFF; cursor: pointer;" id="btnPlay">PLAY</span>
+      <div class="bar-seek" id="videoSeekBar" style="position: absolute; bottom: 10px; left: 0; width: 100%; height: 6px; background: green;">
+        <div class="bar-seek-slider" id="videoSeekDrag" style="position: absolute; top: 0; left: 0; width: 50px; height: 100%; background: red;"></div>
+      </div>
+
+      <div class="bar-volume" style="position: absolute; top: 100px; right: 30px; width: 14px; height: 150px; background: yellow;">
+        <div class="bar-volume-slider" style="position: absolute; top: 0; width: 100%; height: 10px; background: red;"></div>
+      </div>
+    </div>
+  </body>
+
+  <script src="js/jquery-1.8.0.min.js"></script>
+  <script src="js/jquery-ui-1.8.23.custom.min.js"></script>
+  <script src="js/jquery.markuper.videoPlayer.js"></script>
+
+  <script>
+     $(function() {
+       $('.videoWrapper').videoPlayer({
+         listeners: {
+           ended: function() {
+             console.info('video ended');
+           }
+         }
+       });
+     });
+  </script>
+</html>
