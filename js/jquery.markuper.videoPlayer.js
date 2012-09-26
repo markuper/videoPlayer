@@ -7,6 +7,18 @@
 
 (function($) {
 
+  var secToMinutes = function(sec, format) {
+    var s = Math.floor(sec), m;
+
+    if(s < 59) {
+      return '0:'+s;
+    }
+    else {
+      m = Math.floor(s/60);
+      return m+':'+(s-m*60);
+    }
+  };
+
   var videoPlayerInit = function(el, o)
   {
     var $el = $(el),
@@ -16,12 +28,15 @@
       $barSeekSlider = $el.find(o.selectors.barSeekSlider),
       $barVolume = $el.find(o.selectors.barVolume),
       $barVolumeSlider = $el.find(o.selectors.barVolumeSlider),
+      $controlDuration = $el.find(o.selectors.controlDuration),
+      $controlCurrentTime = $el.find(o.selectors.controlCurrentTime),
       barSeekSliderMaxLeft = $barSeek.width()-$barSeekSlider.width(),
       barSeekSliderWidth = $barSeekSlider.width(),
       seekStep = barSeekSliderMaxLeft/100,
       barSeekSliderIsDragged = false,
       barVolumeHeight = $barVolume[o.barVolumeAxis == 'x' ? 'width' : 'height']()-$barVolumeSlider[o.barVolumeAxis == 'x' ? 'width' : 'height'](),
-      barVolumeSliderHeight = $barVolumeSlider[o.barVolumeAxis == 'x' ? 'width' : 'height']();
+      barVolumeSliderHeight = $barVolumeSlider[o.barVolumeAxis == 'x' ? 'width' : 'height'](),
+      currentTimeIsInvert = false;
 
     for(var listenerName in o.listeners) {
       tagVideo.addEventListener(listenerName, o.listeners[listenerName]);
@@ -74,12 +89,19 @@
       }
     });
 
+    tagVideo.addEventListener('canplay', function() {
+      $controlDuration.text( secToMinutes(this.duration) );
+      $controlCurrentTime.text( secToMinutes(this.currentTime) );
+    });
+
     tagVideo.addEventListener('timeupdate', function() {
       //if not dragged
       if(!barSeekSliderIsDragged) {
         var percent = Math.floor( tagVideo.currentTime/(tagVideo.duration/100) );
         $barSeekSlider.css({left: seekStep*percent});
       }
+
+      $controlCurrentTime.text( secToMinutes(currentTimeIsInvert ? this.duration-this.currentTime : this.currentTime) );
     });
     tagVideo.addEventListener('volumechange', function() {
       var percent = Math.floor( tagVideo.volume/0.01 );
@@ -141,6 +163,14 @@
       });
     }
 
+    $controlCurrentTime.click(function() {
+      currentTimeIsInvert = !currentTimeIsInvert;
+      //if player is not play invert time by hand
+      if(tagVideo.paused) {
+        $controlCurrentTime.text( secToMinutes(currentTimeIsInvert ? tagVideo.duration-tagVideo.currentTime : tagVideo.currentTime) );
+      }
+    });
+
     $(document).keydown(function(e) {
       if(e.keyCode == 32) {
         $btnPlay.trigger('click');
@@ -152,11 +182,13 @@
     var opts = $.extend({
       listeners: {},
       selectors: {
-        btnPlay:         '.btn-play',
-        barSeek:         '.bar-seek',
-        barSeekSlider:   '.bar-seek-slider',
-        barVolume:       '.bar-volume',
-        barVolumeSlider: '.bar-volume-slider'
+        btnPlay:            '.btn-play',
+        barSeek:            '.bar-seek',
+        barSeekSlider:      '.bar-seek-slider',
+        barVolume:          '.bar-volume',
+        barVolumeSlider:    '.bar-volume-slider',
+        controlDuration:    '.control-duration',
+        controlCurrentTime: '.control-currentTime'
       },
       btnPlayIsPause: true,
       barSeekSliderIsDraggable: true,
