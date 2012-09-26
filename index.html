@@ -14,8 +14,8 @@
         <div class="bar-seek-slider" id="videoSeekDrag" style="position: absolute; top: 0; left: 0; width: 50px; height: 100%; background: red;"></div>
       </div>
 
-      <div class="bar-volume" style="position: absolute; top: 100px; right: 30px; width: 14px; height: 150px; background: yellow;">
-        <div class="bar-volume-slider" style="position: absolute; top: 0; width: 100%; height: 10px; background: red;"></div>
+      <div class="bar-volume" style="position: absolute; top: 100px; right: 30px; width: 150px; height: 14px; background: yellow;">
+        <div class="bar-volume-slider" style="position: absolute; top: 0; width: 14px; height: 100%; background: red;"></div>
       </div>
     </div>
   </body>
@@ -27,6 +27,7 @@
   <script>
      $(function() {
        $('.videoWrapper').videoPlayer({
+         barVolumeAxis: 'x',
          listeners: {
            ended: function() {
              console.info('video ended');

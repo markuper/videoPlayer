@@ -20,8 +20,8 @@
       barSeekSliderWidth = $barSeekSlider.width(),
       seekStep = barSeekSliderMaxLeft/100,
       barSeekSliderIsDragged = false,
-      barVolumeHeight = $barVolume.height()-$barVolumeSlider.height(),
-      barVolumeSliderHeight = $barVolumeSlider.height();
+      barVolumeHeight = $barVolume[o.barVolumeAxis == 'x' ? 'width' : 'height']()-$barVolumeSlider[o.barVolumeAxis == 'x' ? 'width' : 'height'](),
+      barVolumeSliderHeight = $barVolumeSlider[o.barVolumeAxis == 'x' ? 'width' : 'height']();
 
     for(var listenerName in o.listeners) {
       tagVideo.addEventListener(listenerName, o.listeners[listenerName]);
@@ -56,17 +56,22 @@
     });
 
     $barVolume.click(function(e) {
-      var offsetY = e.offsetY,
-          posY = offsetY-barVolumeSliderHeight/2;
+      var offset = o.barVolumeAxis == 'x' ? e.offsetX : e.offsetY,
+          pos = offset-barVolumeSliderHeight/2;
 
-      if(posY < 0) {
-        posY = 0;
+      if(pos < 0) {
+        pos = 0;
       }
-      else if(posY > barVolumeHeight) {
-        posX = barVolumeHeight;
+      else if(pos > barVolumeHeight) {
+        pos = barVolumeHeight;
       }
 
-      tagVideo.volume = (100-Math.floor(posY/(barVolumeHeight/100)))/100;
+      if(o.barVolumeAxis == 'x') {
+        tagVideo.volume = (Math.floor(pos/(barVolumeHeight/100)))/100;
+      }
+      else {
+        tagVideo.volume = (100-Math.floor(pos/(barVolumeHeight/100)))/100;
+      }
     });
 
     tagVideo.addEventListener('timeupdate', function() {
@@ -77,9 +82,14 @@
       }
     });
     tagVideo.addEventListener('volumechange', function() {
-      var percent = Math.floor( tagVideo.volume/0.01 )
+      var percent = Math.floor( tagVideo.volume/0.01 );
 
-      $barVolumeSlider.css({top: barVolumeHeight-(barVolumeHeight/100*percent)});
+      if(o.barVolumeAxis == 'x') {
+        $barVolumeSlider.css('left', barVolumeHeight/100*percent);
+      }
+      else {
+        $barVolumeSlider.css('top', barVolumeHeight-(barVolumeHeight/100*percent));
+      }
     });
 
     tagVideo.addEventListener('play', function() {
@@ -110,13 +120,23 @@
 
     if(o.barVolumeSliderIsDraggable) {
       $barVolumeSlider.draggable({
-        axis: 'y',
+        axis: o.barVolumeAxis,
         containment: 'parent',
         drag: function(event, ui) {
-          tagVideo.volume = (100-Math.floor((ui.position.top/(barVolumeHeight/100))))/100;
+          if(o.barVolumeAxis == 'x') {
+            tagVideo.volume = (Math.floor((ui.position.left/(barVolumeHeight/100))))/100;
+          }
+          else {
+            tagVideo.volume = (100-Math.floor((ui.position.top/(barVolumeHeight/100))))/100;
+          }
         },
         stop: function(event, ui) {
-          tagVideo.volume = (100-Math.floor((ui.position.top/(barVolumeHeight/100))))/100;
+          if(o.barVolumeAxis == 'x') {
+            tagVideo.volume = (Math.floor((ui.position.left/(barVolumeHeight/100))))/100;
+          }
+          else {
+            tagVideo.volume = (100-Math.floor((ui.position.top/(barVolumeHeight/100))))/100;
+          }
         }
       });
     }
@@ -140,7 +160,8 @@
       },
       btnPlayIsPause: true,
       barSeekSliderIsDraggable: true,
-      barVolumeSliderIsDraggable: true
+      barVolumeSliderIsDraggable: true,
+      barVolumeAxis: 'y'
     }, o);
 
     this.each(function() {
